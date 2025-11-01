@@ -4,13 +4,13 @@ import math
 import time
 import requests
 
+# ESP32 Web Server IP
+ESP_IP = 'http://10.103.209.116'
+
 # Initialize Mediapipe
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.7)
 mp_draw = mp.solutions.drawing_utils
-
-ESP_IP = 'http://10.103.209.116'
-
 
 # Open webcam
 cap = cv2.VideoCapture(0)
@@ -19,13 +19,23 @@ cap.set(4, 480)
 
 # Timing and gesture state
 last_action_time = time.time()
-cooldown = 0.2
+cooldown = 0.3  # seconds between actions
 picked = False
 prev_pinch = False
 last_action = "None"
 
 def calculate_distance(p1, p2):
     return ((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2) ** 0.5
+
+
+def send_to_esp(endpoint):
+    """Send HTTP command to ESP32 (with short timeout)."""
+    try:
+        url = f"{ESP_IP}/led/{endpoint}"
+        requests.get(url, timeout=0.3)
+        print(f"✓ Sent to ESP32: {endpoint}")
+    except requests.exceptions.RequestException:
+        print(f"✗ Failed to reach ESP32 ({endpoint})")
 
 while True:
     success, img = cap.read()
@@ -43,7 +53,6 @@ while True:
         for handLms in results.multi_hand_landmarks:
             mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS)
 
-            # Key landmarks
             index_tip = handLms.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
             thumb_tip = handLms.landmark[mp_hands.HandLandmark.THUMB_TIP]
 
@@ -53,7 +62,6 @@ while True:
             cv2.circle(img, (x, y), 10, (0, 255, 0), cv2.FILLED)
             cv2.circle(img, (thumb_x, thumb_y), 10, (255, 0, 0), cv2.FILLED)
 
-            # Pinch detection
             dist = calculate_distance((x, y), (thumb_x, thumb_y))
             pinch = dist < 40
 
@@ -66,18 +74,16 @@ while True:
                 top_limit = h // 3
                 bottom_limit = 2 * h // 3
 
-                # Check zones
                 in_top = y < top_limit
                 in_middle = top_limit < y < bottom_limit
                 in_bottom = y > bottom_limit
-
                 in_left = x < left_limit
                 in_center = left_limit < x < right_limit
                 in_right = x > right_limit
 
-                # -------------------------------
-                # PICK / DROP (ONLY in middle-center)
-                # -------------------------------
+                # ---------------------------------
+                # Pick / Drop (center-middle zone)
+                # ---------------------------------
                 if pinch and not prev_pinch and in_middle and in_center:
                     if not picked:
                         current_action = "Pick"
@@ -86,13 +92,12 @@ while True:
                         current_action = "Drop"
                         picked = False
 
-                # -------------------------------
-                # MOVEMENT (NO PINCH)
-                # -------------------------------
+                # ---------------------------------
+                # Movement Gestures
+                # ---------------------------------
                 elif not pinch:
                     if in_top:
                         current_action = "Move Forward"
-
                     elif in_bottom:
                         current_action = "Move Backward"
                     elif in_middle:
@@ -100,17 +105,31 @@ while True:
                             current_action = "Move Left"
                         elif in_right:
                             current_action = "Move Right"
-                        else:  # Sitting in middle-center but not pinching
+                        else:
                             current_action = "None"
 
                 prev_pinch = pinch
                 last_action_time = current_time
 
     else:
-        if "Move" in last_action:
-            current_action = last_action
+        current_action = "None"
+
+    # Only send if action changes
+    if current_action != last_action:
+        if current_action == "Move Forward":
+            send_to_esp("thumb/on")   # e.g. Thumb LED ON when moving forward
+        elif current_action == "Move Backward":
+            send_to_esp("index/on")
+        elif current_action == "Move Left":
+            send_to_esp("pinky/on")
+        elif current_action == "Move Right":
+            send_to_esp("ring/on")
+        elif current_action == "Pick":
+            send_to_esp("middle/on")
         else:
-            current_action = "None"
+            # Default OFF state for all
+            for led in ["thumb", "index", "pinky", "ring", "middle"]:
+                send_to_esp(f"{led}/off")
 
     last_action = current_action
 
@@ -120,11 +139,10 @@ while True:
     cv2.line(img, (0, h // 3), (w, h // 3), (255, 255, 255), 2)
     cv2.line(img, (0, 2 * h // 3), (w, 2 * h // 3), (255, 255, 255), 2)
 
-    # Display current action
+    # Show current action
     cv2.putText(img, f'Action: {current_action}', (10, 40),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
-
-    cv2.imshow("Gesture Control Grid System", img)
+    cv2.imshow("Gesture → ESP32 Control", img)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

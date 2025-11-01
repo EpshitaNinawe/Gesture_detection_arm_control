@@ -49,20 +49,32 @@ while True:
             cv2.circle(img, (x, y), 10, (0, 255, 0), cv2.FILLED)
             cv2.circle(img, (thumb_x, thumb_y), 10, (255, 0, 0), cv2.FILLED)
 
-            # Pick/Drop detection
+            # Pinch detection
             dist = calculate_distance((x, y), (thumb_x, thumb_y))
             pinch = dist < 40
 
             current_time = time.time()
             if current_time - last_action_time > cooldown:
+
                 # Grid boundaries
                 left_limit = w // 3
                 right_limit = 2 * w // 3
                 top_limit = h // 3
                 bottom_limit = 2 * h // 3
 
-                # --- PICK / DROP ---
-                if pinch and not prev_pinch:
+                # Check zones
+                in_top = y < top_limit
+                in_middle = top_limit < y < bottom_limit
+                in_bottom = y > bottom_limit
+
+                in_left = x < left_limit
+                in_center = left_limit < x < right_limit
+                in_right = x > right_limit
+
+                # -------------------------------
+                # PICK / DROP (ONLY in middle-center)
+                # -------------------------------
+                if pinch and not prev_pinch and in_middle and in_center:
                     if not picked:
                         current_action = "Pick"
                         picked = True
@@ -70,21 +82,20 @@ while True:
                         current_action = "Drop"
                         picked = False
 
-                # --- MOVEMENT (only index finger, not pinching) ---
+                # -------------------------------
+                # MOVEMENT (NO PINCH)
+                # -------------------------------
                 elif not pinch:
-                    if x < left_limit and top_limit < y < bottom_limit:
-                        current_action = "Move Left"
-                    elif x > right_limit and top_limit < y < bottom_limit:
-                        current_action = "Move Right"
-                    elif y < top_limit and left_limit < x < right_limit:
+                    if in_top:
                         current_action = "Move Forward"
-                    elif y > bottom_limit and left_limit < x < right_limit:
+                    elif in_bottom:
                         current_action = "Move Backward"
-                    elif left_limit < x < right_limit and top_limit < y < bottom_limit:
-                        # center zone (no movement)
-                        if "Pick" in last_action or "Drop" in last_action:
-                            current_action = last_action
-                        else:
+                    elif in_middle:
+                        if in_left:
+                            current_action = "Move Left"
+                        elif in_right:
+                            current_action = "Move Right"
+                        else:  # Sitting in middle-center but not pinching
                             current_action = "None"
 
                 prev_pinch = pinch

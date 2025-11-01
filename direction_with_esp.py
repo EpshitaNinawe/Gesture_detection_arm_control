@@ -31,7 +31,7 @@ def calculate_distance(p1, p2):
 def send_to_esp(endpoint):
     """Send HTTP command to ESP32 (with short timeout)."""
     try:
-        url = f"{ESP_IP}/led/{endpoint}"
+        url = f"{ESP_IP}/{endpoint}"
         requests.get(url, timeout=0.3)
         print(f"✓ Sent to ESP32: {endpoint}")
     except requests.exceptions.RequestException:
@@ -117,19 +117,22 @@ while True:
     # Only send if action changes
     if current_action != last_action:
         if current_action == "Move Forward":
-            send_to_esp("thumb/on")   # e.g. Thumb LED ON when moving forward
+            send_to_esp("forward")   # e.g. Thumb LED ON when moving forward
         elif current_action == "Move Backward":
-            send_to_esp("index/on")
+            send_to_esp("back")
         elif current_action == "Move Left":
-            send_to_esp("pinky/on")
+            send_to_esp("left")
         elif current_action == "Move Right":
-            send_to_esp("ring/on")
+            send_to_esp("right")
         elif current_action == "Pick":
             send_to_esp("middle/on")
+        elif current_action == "None":
+            send_to_esp("stop")
+        elif current_action == "Drop":
+            send_to_esp("keep")  
         else:
-            # Default OFF state for all
-            for led in ["thumb", "index", "pinky", "ring", "middle"]:
-                send_to_esp(f"{led}/off")
+            #fallback safety stop
+            send_to_esp("stop")
 
     last_action = current_action
 

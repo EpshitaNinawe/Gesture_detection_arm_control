@@ -72,7 +72,7 @@ pip install -r requirements.txt
 ### 4. Run the Project
 
 ```bash
-python gesture_control.py
+python direction.py
 ```
 
 ---

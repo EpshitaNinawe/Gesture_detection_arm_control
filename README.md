@@ -76,10 +76,3 @@ python gesture_control.py
 ```
 
 ---
-
-✨ **Tip:** Make sure your webcam is properly connected before running the script.
-
----
-
-Would you like me to include a **“System Architecture” diagram** or **image placeholders (like flowchart or working demo GIF)** section next?
-It will make your README look even more polished and GitHub-ready.

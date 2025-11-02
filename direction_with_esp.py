@@ -125,7 +125,7 @@ while True:
         elif current_action == "Move Right":
             send_to_esp("right")
         elif current_action == "Pick":
-            send_to_esp("middle/on")
+            send_to_esp("pick")
         elif current_action == "None":
             send_to_esp("stop")
         elif current_action == "Drop":

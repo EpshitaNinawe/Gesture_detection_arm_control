@@ -36,6 +36,9 @@ def send_to_esp(endpoint):
         print(f"✓ Sent to ESP32: {endpoint}")
     except requests.exceptions.RequestException:
         print(f"✗ Failed to reach ESP32 ({endpoint})")
+        if(endpoint== 'stop'):
+            send_to_esp('stop')
+
 
 while True:
     success, img = cap.read()
@@ -125,11 +128,11 @@ while True:
         elif current_action == "Move Right":
             send_to_esp("right")
         elif current_action == "Pick":
-            send_to_esp("pick")
+            send_to_esp("pinch")
         elif current_action == "None":
             send_to_esp("stop")
         elif current_action == "Drop":
-            send_to_esp("keep")  
+            send_to_esp("pinch")  
         else:
             #fallback safety stop
             send_to_esp("stop")

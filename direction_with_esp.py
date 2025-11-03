@@ -1,6 +1,5 @@
 import cv2
 import mediapipe as mp
-import math
 import time
 import requests
 
@@ -84,9 +83,7 @@ while True:
                 in_center = left_limit < x < right_limit
                 in_right = x > right_limit
 
-                # ---------------------------------
                 # Pick / Drop (center-middle zone)
-                # ---------------------------------
                 if pinch and not prev_pinch and in_middle and in_center:
                     if not picked:
                         current_action = "Pick"
@@ -95,9 +92,7 @@ while True:
                         current_action = "Drop"
                         picked = False
 
-                # ---------------------------------
                 # Movement Gestures
-                # ---------------------------------
                 elif not pinch:
                     if in_top:
                         current_action = "Move Forward"
@@ -120,7 +115,7 @@ while True:
     # Only send if action changes
     if current_action != last_action:
         if current_action == "Move Forward":
-            send_to_esp("forward")   # e.g. Thumb LED ON when moving forward
+            send_to_esp("forward")   
         elif current_action == "Move Backward":
             send_to_esp("back")
         elif current_action == "Move Left":

@@ -4,7 +4,7 @@ import time
 import requests
 
 # ESP32 Web Server IP
-ESP_IP = 'http://10.103.209.116'
+ESP_IP = 'http://10.168.158.116'
 
 # Initialize Mediapipe
 mp_hands = mp.solutions.hands
@@ -35,8 +35,8 @@ def send_to_esp(endpoint):
         print(f"✓ Sent to ESP32: {endpoint}")
     except requests.exceptions.RequestException:
         print(f"✗ Failed to reach ESP32 ({endpoint})")
-        if(endpoint== 'stop'):
-            send_to_esp('stop')
+        #if(endpoint== 'stop'):
+        #   send_to_esp('stop')        
 
 
 while True:

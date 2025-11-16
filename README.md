@@ -72,7 +72,7 @@ pip install -r requirements.txt
 ### 4. Run the Project
 
 ```bash
-python direction.py
+python direction_with_esp.py
 ```
 
 ---

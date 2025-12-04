@@ -2,13 +2,13 @@
 
 ---
 
-# 🤖 Hand Gesture Controlled Robotic Arm
+# Hand Gesture Controlled Robotic Arm
 
 This project enables control of a robotic arm using real-time **hand gestures**. The system uses **MediaPipe** and **OpenCV** to track hand landmarks and interpret gestures, which are then translated into movement commands.
 
 ---
 
-## 🧠 Core Functions of OpenCV in the System
+## Core Functions of OpenCV in the System
 
 ### 1.  Video Capture
 
@@ -26,7 +26,7 @@ The video frame is divided into a 3×3 grid. The position of the index finger wi
 
 ---
 
-## 🔍 Role in the Pipeline
+## Role in the Pipeline
 
 **MediaPipe** performs the critical task of locating the **hand within the camera frame** and returning precise coordinates for each key point.
 Using these coordinates:
@@ -38,7 +38,7 @@ Using these coordinates:
 
 ---
 
-## 🧰 Installation and Setup
+## Installation and Setup
 
 ### 1. Clone the Repository
 
@@ -76,3 +76,5 @@ python direction_with_esp.py
 ```
 
 ---
+
+### Ideal Python version: 3.10

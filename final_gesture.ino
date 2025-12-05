@@ -3,20 +3,23 @@
 #include <ESPAsyncWebServer.h>
 
 /*---Pin Definitions---*/
+
+#define IN1 4
+#define IN2 18
+#define enA 19
+
 #define IN3 21
 #define IN4 22
 #define enB 23
-#define IN2 4
-#define IN1 18
-#define enA 19
+
 #define servoPin 16
 #define MotSpeed 255
 
 short unsigned int control;
 bool ispick = true;
 
-const char* ssid = "Galaxy A15 5G 880E";
-const char* password = "12345678";
+const char* ssid = "Galaxy A15 5G 880E";  //Your Wifi name
+const char* password = "12345678";  //Wifi password
 
 Servo myservo;
 AsyncWebServer server(80);
@@ -91,16 +94,6 @@ void setup() {
       control = 5;
       request->send(200, "text/plain", "Stopping");
     });
-    // server.on("/pick", HTTP_GET, [](AsyncWebServerRequest *request){
-    //   Serial.println("Picking");
-    //   control = 6;
-    //   request->send(200, "text/plain", "Picking");
-    // });
-    // server.on("/keep", HTTP_GET, [](AsyncWebServerRequest *request){
-    //   Serial.println("Keeping");
-    //   control = 7;
-    //   request->send(200, "text/plain", "Keeping");
-    // });
     server.on("/pinch", HTTP_GET, [](AsyncWebServerRequest *request){
       if(ispick == true){
         ispick = false;
@@ -169,8 +162,8 @@ void right() {
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
-  analogWrite(enA, MotSpeed/1.3);
-  analogWrite(enB, MotSpeed/1.3);
+  analogWrite(enA, MotSpeed);
+  analogWrite(enB, MotSpeed);
 }
 
 void left() {
@@ -179,8 +172,8 @@ void left() {
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
-  analogWrite(enA, MotSpeed/1.3);
-  analogWrite(enB, MotSpeed/1.3);
+  analogWrite(enA, MotSpeed);
+  analogWrite(enB, MotSpeed);
 }
 
 void stopBot() {
@@ -192,13 +185,13 @@ void stopBot() {
 }
 
 void pick(){
-  myservo.write(60);
+  myservo.write(90);
     delay(1000);
     control = 0;
 }
 
 void keep(){
-  myservo.write(0);
+  myservo.write(-90);
     delay(1000);
     control = 0;
 }

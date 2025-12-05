@@ -4,8 +4,8 @@
 #include <ESP32Servo.h>
 
 //back left
-#define in1 18
-#define in2 4
+#define in1 4  
+#define in2 8
 #define en1 19
 
 //back right
@@ -16,8 +16,6 @@
 //servo
 Servo myservo;
 #define an1 16
-
-//void setMotors(int, int, int, int);
 
 void setMotors(int inA, int inB, int pwm, int speed)
 {
@@ -63,45 +61,54 @@ void setup() {
 
 void loop() {
   Dabble.processInput();
-  int speed = 255;
 
-  if (GamePad.isUpPressed()) {
-    Serial.println("Up Pressed");
-    setMotors(in1, in2, en1, speed);
-    setMotors(in3, in4, en2, speed);
+  int x_value = GamePad.getx_axis();
+  int y_value = GamePad.gety_axis();
+  int r_value = GamePad.getRadius();
+  int a_value = GamePad.getAngle();
+
+  int speed = map(r_value, 0, 7, 0, 255);
+
+  if(a_value==0 && x_value==0 && y_value==0)
+  {
+    Serial.println("stop");
+    setMotors(in1, in2, en1, 0);
+    setMotors(in3, in4, en2, 0);
   }
-
-  if (GamePad.isDownPressed()) {
-    Serial.println("Down Pressed");
+  else if(a_value >= 45 && a_value <= 135)
+  {
+    Serial.println("Forward");
     setMotors(in1, in2, en1, -speed);
     setMotors(in3, in4, en2, -speed);
   }
-
-  if (GamePad.isLeftPressed()) {
+  else if(a_value >= 135 && a_value <=225)
+  {
     Serial.println("Left Pressed");
     setMotors(in1, in2, en1, -speed);
     setMotors(in3, in4, en2, speed);
   }
-
-  if (GamePad.isRightPressed()) {
-    Serial.println("Right Pressed");
+  else if(a_value >= 225 && a_value <= 315)
+  {
+    Serial.println("Backward");
+    setMotors(in1, in2, en1, speed);
+    setMotors(in3, in4, en2, speed);
+  }
+  else
+  {
+    Serial.println("Right");
     setMotors(in1, in2, en1, speed);
     setMotors(in3, in4, en2, -speed);
-  }
+  } 
 
   if (GamePad.isCirclePressed()) {
-    Serial.println("Circle Pressed");
+    Serial.println("Circle Pressed"); 
     myservo.write(90);
-  }
-
-  if (GamePad.isCrossPressed()) {
-    Serial.println("Cross pressed");
-    myservo.write(-90);
+    delay(20);
   }
 
   if (GamePad.isTrianglePressed()) {
-    Serial.println("stop");
-    setMotors(in1, in2, en1, 0);
-    setMotors(in3, in4, en2, 0);
+    Serial.println("Triangle pressed");
+    myservo.write(-90);
+    delay(20);
   }
 }
